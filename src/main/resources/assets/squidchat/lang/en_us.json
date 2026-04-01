@@ -1,0 +1,13 @@
+{
+  "category.squidchat": "SquidChat",
+  "key.category.squidchat.general": "SquidChat",
+  "key.squidchat.toggle_chat": "Toggle Chat Window",
+  "title.squidchat.config": "SquidChat Configuration",
+  "category.squidchat.sound": "Sound",
+  "category.squidchat.chat_window": "Chat Window",
+  "option.squidchat.tone_enabled": "Chat Notification Tone",
+  "option.squidchat.tone_volume": "Notification Volume",
+  "option.squidchat.reset_position": "Reset Chat Position",
+  "action.squidchat.reset": "Reset",
+  "tooltip.squidchat.reset_position": "Reset the chat window to its default position and size"
+}

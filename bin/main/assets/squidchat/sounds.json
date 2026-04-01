@@ -1,0 +1,7 @@
+{
+  "chat_notification": {
+    "sounds": [
+      "squidchat:chat_notification"
+    ]
+  }
+}
