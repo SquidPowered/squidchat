@@ -17,6 +17,7 @@ public class ConfigManager {
 
     private static SquidChatConfig config = new SquidChatConfig();
 
+    @SuppressWarnings("null")
     public static void load() {
         if (Files.exists(CONFIG_PATH)) {
             try {

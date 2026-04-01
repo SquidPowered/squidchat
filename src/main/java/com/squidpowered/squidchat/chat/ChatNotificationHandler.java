@@ -6,7 +6,6 @@ import com.squidpowered.squidchat.sound.SquidChatSounds;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundCategory;
 
 public class ChatNotificationHandler {
 
