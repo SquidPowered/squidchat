@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChatScreen.class)
@@ -41,6 +42,54 @@ public abstract class ChatScreenMixin {
         }
     }
 
+    @ModifyArg(
+            method = "mouseClicked",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/font/DrawnTextConsumer$ClickHandler;<init>(Lnet/minecraft/client/font/TextRenderer;II)V"
+            ),
+            index = 1
+    )
+    private int squidchat$adjustClickHandlerMouseX(int mouseX) {
+        return mouseX - squidchat$getMouseOffsetX();
+    }
+
+    @ModifyArg(
+            method = "mouseClicked",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/font/DrawnTextConsumer$ClickHandler;<init>(Lnet/minecraft/client/font/TextRenderer;II)V"
+            ),
+            index = 2
+    )
+    private int squidchat$adjustClickHandlerMouseY(int mouseY) {
+        return mouseY - squidchat$getMouseOffsetY();
+    }
+
+    @ModifyArg(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;IIIZZ)V"
+            ),
+            index = 3
+    )
+    private int squidchat$adjustRenderMouseX(int mouseX) {
+        return mouseX - squidchat$getMouseOffsetX();
+    }
+
+    @ModifyArg(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;IIIZZ)V"
+            ),
+            index = 4
+    )
+    private int squidchat$adjustRenderMouseY(int mouseY) {
+        return mouseY - squidchat$getMouseOffsetY();
+    }
+
     @Unique
     private static int[] squidchat$getChatBounds(ChatWindowManager manager) {
         int left = manager.getRenderLeft();
@@ -49,5 +98,17 @@ public abstract class ChatScreenMixin {
         int height = manager.getScreenChatHeight();
 
         return new int[]{left, top, left + width, top + height};
+    }
+
+    @Unique
+    private static int squidchat$getMouseOffsetX() {
+        ChatWindowManager manager = ChatWindowManager.getInstance();
+        return manager != null && manager.isCustomPosition() ? manager.getRenderOffsetX() : 0;
+    }
+
+    @Unique
+    private static int squidchat$getMouseOffsetY() {
+        ChatWindowManager manager = ChatWindowManager.getInstance();
+        return manager != null && manager.isCustomPosition() ? manager.getRenderOffsetY() : 0;
     }
 }
