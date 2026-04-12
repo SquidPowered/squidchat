@@ -24,7 +24,7 @@ public abstract class ChatScreenMixin {
 
         double mouseX = click.x();
         double mouseY = click.y();
-        int[] bounds = squidchat$getChatBounds(manager);
+        int[] bounds = squidchat$getChatFrameBounds(manager);
         int left = bounds[0], top = bounds[1], right = bounds[2], bottom = bounds[3];
 
         ResizeHandle handle = manager.getHandleAt(mouseX, mouseY, left, top, right, bottom);
@@ -91,13 +91,13 @@ public abstract class ChatScreenMixin {
     }
 
     @Unique
-    private static int[] squidchat$getChatBounds(ChatWindowManager manager) {
-        int left = manager.getRenderLeft();
-        int top = manager.getRenderTop();
-        int width = manager.getScreenChatWidth();
-        int height = manager.getScreenChatHeight();
-
-        return new int[]{left, top, left + width, top + height};
+    private static int[] squidchat$getChatFrameBounds(ChatWindowManager manager) {
+        return new int[]{
+                manager.getFrameLeft(),
+                manager.getFrameTop(),
+                manager.getFrameRight(),
+                manager.getFrameBottom()
+        };
     }
 
     @Unique

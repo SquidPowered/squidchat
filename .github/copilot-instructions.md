@@ -2,7 +2,7 @@
 
 ## Architecture
 This repository is a Fabric client mod for Minecraft 1.21.11 targeting Java 21.
-Core entrypoints are [src/main/java/com/example/squidchat/SquidChat.java](src/main/java/com/example/squidchat/SquidChat.java) and [src/main/java/com/example/squidchat/SquidChatClient.java](src/main/java/com/example/squidchat/SquidChatClient.java).
+Core entrypoints are [src/main/java/com/squidpowered/squidchat/SquidChat.java](src/main/java/com/squidpowered/squidchat/SquidChat.java) and [src/main/java/com/squidpowered/squidchat/SquidChatClient.java](src/main/java/com/squidpowered/squidchat/SquidChatClient.java).
 Keep responsibilities separated by package:
 - `chat/` manages chat window state and notification behavior.
 - `config/` owns config schema, persistence, and Mod Menu integration.
@@ -19,9 +19,9 @@ There is no established automated test suite in this repo right now. Do not clai
 ## Conventions
 Target Java 21 and the dependency versions declared in [gradle.properties](gradle.properties) and [build.gradle](build.gradle). Keep changes compatible with the current Minecraft, Yarn, and Fabric versions unless the task is explicitly a version upgrade.
 
-Treat mixins as version-sensitive integration points. When editing files under [src/main/java/com/example/squidchat/mixin](src/main/java/com/example/squidchat/mixin), keep injections minimal, preserve existing naming such as the `squidchat$` method prefix, and verify corresponding targets in [src/main/resources/squidchat.mixins.json](src/main/resources/squidchat.mixins.json).
+Treat mixins as version-sensitive integration points. When editing files under [src/main/java/com/squidpowered/squidchat/mixin](src/main/java/com/squidpowered/squidchat/mixin), keep injections minimal, preserve existing naming such as the `squidchat$` method prefix, and verify corresponding targets in [src/main/resources/squidchat.mixins.json](src/main/resources/squidchat.mixins.json).
 
-Persist chat window and user settings through [src/main/java/com/example/squidchat/config/ConfigManager.java](src/main/java/com/example/squidchat/config/ConfigManager.java) and the config model instead of introducing ad hoc storage.
+Persist chat window and user settings through [src/main/java/com/squidpowered/squidchat/config/ConfigManager.java](src/main/java/com/squidpowered/squidchat/config/ConfigManager.java) and the config model instead of introducing ad hoc storage.
 
 When adding user-facing text, keybindings, or sounds, update the matching assets under [src/main/resources/assets/squidchat](src/main/resources/assets/squidchat), especially [src/main/resources/assets/squidchat/lang/en_us.json](src/main/resources/assets/squidchat/lang/en_us.json) and [src/main/resources/assets/squidchat/sounds.json](src/main/resources/assets/squidchat/sounds.json).
 
@@ -33,5 +33,29 @@ This mod is client-only, as declared in [src/main/resources/fabric.mod.json](src
 Read these files first when a task needs broader context:
 - [build.gradle](build.gradle)
 - [src/main/resources/fabric.mod.json](src/main/resources/fabric.mod.json)
-- [src/main/java/com/example/squidchat/SquidChatClient.java](src/main/java/com/example/squidchat/SquidChatClient.java)
-- [src/main/java/com/example/squidchat/chat/ChatWindowManager.java](src/main/java/com/example/squidchat/chat/ChatWindowManager.java)
+- [src/main/java/com/squidpowered/squidchat/SquidChatClient.java](src/main/java/com/squidpowered/squidchat/SquidChatClient.java)
+- [src/main/java/com/squidpowered/squidchat/chat/ChatWindowManager.java](src/main/java/com/squidpowered/squidchat/chat/ChatWindowManager.java)
+
+## AI / Agent Guidance
+
+When interacting with this repository, follow these pragmatic rules:
+
+- Use the Gradle wrapper from the repo root for build/run: `./gradlew build`, `./gradlew runClient`.
+- Prefer edits under `src/main`; do not modify generated output under `build/` or runtime files in `run/`.
+- Keep mixin changes minimal and verify targets in `src/main/resources/squidchat.mixins.json` when updating injections.
+- Update assets under `src/main/resources/assets/squidchat` for any user-facing text, sounds, or language keys.
+
+Example prompts to use with an AI agent:
+
+- "Add a new config option to toggle chat notifications and persist it via `ConfigManager`."
+- "Refactor `ChatWindowManager` to decouple rendering and state management; keep public behavior unchanged."
+- "Implement a new sound event, register it, and add the entry to `assets/squidchat/sounds.json`."
+- "Help me diagnose a mixin crash affecting the HUD on startup — suggest safe minimal changes."
+
+Suggested next agent customizations to add (optional):
+
+- `create-prompt` for common dev tasks: build, runClient, open main classes
+- `create-skill` for codebase exploration focusing on `mixin`, `chat`, and `config` packages
+- `create-instruction` scoped to mixin edits with guidance about preserving `squidchat$` prefixes
+
+If you want, I can create any of the above agent customizations or produce a short README with quick commands.

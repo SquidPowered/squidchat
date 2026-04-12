@@ -28,10 +28,14 @@ public class ChatWindowManager {
         TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
     }
 
-    private static final int HANDLE_SIZE = 6;
+    private static final int HANDLE_HITBOX_SIZE = 4;
+    private static final int HANDLE_DRAW_SIZE = 2;
     private static final int DRAG_BAR_HEIGHT = 10;
     private static final int MIN_WIDTH = 60;
     private static final int MIN_HEIGHT = 40;
+    private static final int FRAME_LEFT_PADDING = 4;
+    private static final int FRAME_RIGHT_PADDING = 8;
+    private static final int FRAME_BOTTOM_PADDING = 0;
 
     public static void init() {
         instance = new ChatWindowManager();
@@ -97,23 +101,23 @@ public class ChatWindowManager {
                                      int windowLeft, int windowTop,
                                      int windowRight, int windowBottom) {
         // Top-left
-        if (mouseX >= windowLeft - HANDLE_SIZE && mouseX <= windowLeft + HANDLE_SIZE
-                && mouseY >= windowTop - HANDLE_SIZE && mouseY <= windowTop + HANDLE_SIZE) {
+        if (mouseX >= windowLeft - HANDLE_HITBOX_SIZE && mouseX <= windowLeft + HANDLE_HITBOX_SIZE
+                && mouseY >= windowTop - HANDLE_HITBOX_SIZE && mouseY <= windowTop + HANDLE_HITBOX_SIZE) {
             return ResizeHandle.TOP_LEFT;
         }
         // Top-right
-        if (mouseX >= windowRight - HANDLE_SIZE && mouseX <= windowRight + HANDLE_SIZE
-                && mouseY >= windowTop - HANDLE_SIZE && mouseY <= windowTop + HANDLE_SIZE) {
+        if (mouseX >= windowRight - HANDLE_HITBOX_SIZE && mouseX <= windowRight + HANDLE_HITBOX_SIZE
+                && mouseY >= windowTop - HANDLE_HITBOX_SIZE && mouseY <= windowTop + HANDLE_HITBOX_SIZE) {
             return ResizeHandle.TOP_RIGHT;
         }
         // Bottom-left
-        if (mouseX >= windowLeft - HANDLE_SIZE && mouseX <= windowLeft + HANDLE_SIZE
-                && mouseY >= windowBottom - HANDLE_SIZE && mouseY <= windowBottom + HANDLE_SIZE) {
+        if (mouseX >= windowLeft - HANDLE_HITBOX_SIZE && mouseX <= windowLeft + HANDLE_HITBOX_SIZE
+                && mouseY >= windowBottom - HANDLE_HITBOX_SIZE && mouseY <= windowBottom + HANDLE_HITBOX_SIZE) {
             return ResizeHandle.BOTTOM_LEFT;
         }
         // Bottom-right
-        if (mouseX >= windowRight - HANDLE_SIZE && mouseX <= windowRight + HANDLE_SIZE
-                && mouseY >= windowBottom - HANDLE_SIZE && mouseY <= windowBottom + HANDLE_SIZE) {
+        if (mouseX >= windowRight - HANDLE_HITBOX_SIZE && mouseX <= windowRight + HANDLE_HITBOX_SIZE
+                && mouseY >= windowBottom - HANDLE_HITBOX_SIZE && mouseY <= windowBottom + HANDLE_HITBOX_SIZE) {
             return ResizeHandle.BOTTOM_RIGHT;
         }
         return ResizeHandle.NONE;
@@ -158,16 +162,16 @@ public class ChatWindowManager {
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
 
-        int newX = (int) mouseX - dragOffsetX;
-        int newY = (int) mouseY - dragOffsetY;
+        int newFrameLeft = (int) mouseX - dragOffsetX;
+        int newFrameTop = (int) mouseY - dragOffsetY;
 
-        int w = getScreenChatWidth();
-        int h = getScreenChatHeight();
-        newX = Math.max(0, Math.min(newX, screenWidth - w));
-        newY = Math.max(0, Math.min(newY, screenHeight - h));
+        int frameWidth = getScreenFrameWidth();
+        int frameHeight = getScreenFrameHeight();
+        newFrameLeft = Math.max(0, Math.min(newFrameLeft, screenWidth - frameWidth));
+        newFrameTop = Math.max(0, Math.min(newFrameTop, screenHeight - frameHeight));
 
-        chatX = newX;
-        chatY = newY;
+        chatX = newFrameLeft + FRAME_LEFT_PADDING;
+        chatY = newFrameTop;
     }
 
     public void updateResize(double mouseX, double mouseY) {
@@ -176,6 +180,8 @@ public class ChatWindowManager {
         MinecraftClient client = MinecraftClient.getInstance();
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
+        int minFrameWidth = MIN_WIDTH + FRAME_LEFT_PADDING + FRAME_RIGHT_PADDING;
+        int minFrameHeight = MIN_HEIGHT + FRAME_BOTTOM_PADDING;
 
         int newLeft = origLeft;
         int newTop = origTop;
@@ -187,27 +193,27 @@ public class ChatWindowManager {
                 return;
             }
             case TOP_LEFT -> {
-                newLeft = clamp((int) mouseX, 0, origRight - MIN_WIDTH);
-                newTop = clamp((int) mouseY, 0, origBottom - MIN_HEIGHT);
+                newLeft = clamp((int) mouseX, 0, origRight - minFrameWidth);
+                newTop = clamp((int) mouseY, 0, origBottom - minFrameHeight);
             }
             case TOP_RIGHT -> {
-                newRight = clamp((int) mouseX, origLeft + MIN_WIDTH, screenWidth);
-                newTop = clamp((int) mouseY, 0, origBottom - MIN_HEIGHT);
+                newRight = clamp((int) mouseX, origLeft + minFrameWidth, screenWidth);
+                newTop = clamp((int) mouseY, 0, origBottom - minFrameHeight);
             }
             case BOTTOM_LEFT -> {
-                newLeft = clamp((int) mouseX, 0, origRight - MIN_WIDTH);
-                newBottom = clamp((int) mouseY, origTop + MIN_HEIGHT, screenHeight);
+                newLeft = clamp((int) mouseX, 0, origRight - minFrameWidth);
+                newBottom = clamp((int) mouseY, origTop + minFrameHeight, screenHeight);
             }
             case BOTTOM_RIGHT -> {
-                newRight = clamp((int) mouseX, origLeft + MIN_WIDTH, screenWidth);
-                newBottom = clamp((int) mouseY, origTop + MIN_HEIGHT, screenHeight);
+                newRight = clamp((int) mouseX, origLeft + minFrameWidth, screenWidth);
+                newBottom = clamp((int) mouseY, origTop + minFrameHeight, screenHeight);
             }
         }
 
-        chatX = newLeft;
+        chatX = newLeft + FRAME_LEFT_PADDING;
         chatY = newTop;
-        chatWidth = newRight - newLeft;
-        chatHeight = newBottom - newTop;
+        chatWidth = newRight - newLeft - FRAME_LEFT_PADDING - FRAME_RIGHT_PADDING;
+        chatHeight = newBottom - newTop - FRAME_BOTTOM_PADDING;
         refreshChatHud();
     }
 
@@ -235,17 +241,17 @@ public class ChatWindowManager {
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
 
-        int w = getScreenChatWidth();
-        int h = getScreenChatHeight();
+        if (isCustomPosition()) {
+            int maxChatX = Math.max(FRAME_LEFT_PADDING, screenWidth - getScreenChatWidth() - FRAME_RIGHT_PADDING);
+            int maxChatY = Math.max(0, screenHeight - getScreenChatHeight() - FRAME_BOTTOM_PADDING);
 
-        if (chatX + w > screenWidth) chatX = Math.max(0, screenWidth - w);
-        if (chatY + h > screenHeight) chatY = Math.max(0, screenHeight - h);
-        if (chatX < 0) chatX = 0;
-        if (chatY < 0) chatY = 0;
+            chatX = clamp(chatX, FRAME_LEFT_PADDING, maxChatX);
+            chatY = clamp(chatY, 0, maxChatY);
+        }
 
         if (isCustomSize()) {
-            chatWidth = Math.min(chatWidth, screenWidth);
-            chatHeight = Math.min(chatHeight, screenHeight);
+            chatWidth = Math.min(chatWidth, Math.max(MIN_WIDTH, screenWidth - FRAME_LEFT_PADDING - FRAME_RIGHT_PADDING));
+            chatHeight = Math.min(chatHeight, Math.max(MIN_HEIGHT, screenHeight - FRAME_BOTTOM_PADDING));
         }
     }
 
@@ -259,12 +265,28 @@ public class ChatWindowManager {
         return (int) (client.options.getChatHeightFocused().getValue() * 160 + 20);
     }
 
-    public int getHandleSize() {
-        return HANDLE_SIZE;
+    public int getHandleDrawSize() {
+        return HANDLE_DRAW_SIZE;
     }
 
     public int getDragBarHeight() {
         return DRAG_BAR_HEIGHT;
+    }
+
+    public int getFrameLeft() {
+        return getRenderLeft() - FRAME_LEFT_PADDING;
+    }
+
+    public int getFrameTop() {
+        return getRenderTop();
+    }
+
+    public int getFrameRight() {
+        return getRenderLeft() + getScreenChatWidth() + FRAME_RIGHT_PADDING;
+    }
+
+    public int getFrameBottom() {
+        return getRenderTop() + getScreenChatHeight() + FRAME_BOTTOM_PADDING;
     }
 
     public int getRenderedChatWidth() {
@@ -286,6 +308,14 @@ public class ChatWindowManager {
 
     public int getScreenChatHeight() {
         return Math.max(1, (int) Math.round(getRenderedChatHeight() * getChatScale()));
+    }
+
+    public int getScreenFrameWidth() {
+        return getScreenChatWidth() + FRAME_LEFT_PADDING + FRAME_RIGHT_PADDING;
+    }
+
+    public int getScreenFrameHeight() {
+        return getScreenChatHeight() + FRAME_BOTTOM_PADDING;
     }
 
     public int getRenderLeft() {
@@ -310,7 +340,7 @@ public class ChatWindowManager {
     }
 
     public int getRenderWindowHeight() {
-        return getRenderTop() + getScreenChatHeight() + DEFAULT_CHAT_BOTTOM_OFFSET;
+        return getRenderTop() + getScreenFrameHeight() + DEFAULT_CHAT_BOTTOM_OFFSET;
     }
 
     private static int clamp(int value, int min, int max) {

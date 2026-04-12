@@ -68,12 +68,13 @@ public abstract class ChatHudMixin {
     }
 
     private void drawInteractionOverlay(DrawContext context, ChatWindowManager manager) {
-        int handleSize = manager.getHandleSize();
+        int handleSize = manager.getHandleDrawSize();
+        int handleDiameter = handleSize * 2;
         int dragBarHeight = manager.getDragBarHeight();
-        int left = manager.getRenderLeft();
-        int top = manager.getRenderTop();
-        int right = left + manager.getScreenChatWidth();
-        int bottom = top + manager.getScreenChatHeight();
+        int left = manager.getFrameLeft();
+        int top = manager.getFrameTop();
+        int right = manager.getFrameRight();
+        int bottom = manager.getFrameBottom();
         int barTop = Math.max(0, top - dragBarHeight / 2);
         int barBottom = barTop + dragBarHeight;
 
@@ -83,22 +84,24 @@ public abstract class ChatHudMixin {
 
         context.fill(left, barTop, right, barBottom, dragBarColor);
         context.fill(left, top, right, top + 1, outlineColor);
-        context.fill(left, bottom - 2, right, bottom + 1, outlineColor);
-        context.fill(left - 1, top, left + 2, bottom, outlineColor);
-        context.fill(right - 2, top, right + 1, bottom, outlineColor);
+        context.fill(left, bottom - 1, right, bottom + 1, outlineColor);
+        context.fill(left, top, left + 1, bottom, outlineColor);
+        context.fill(right - 1, top, right, bottom, outlineColor);
 
         // Top-left
-        drawRoundedHandle(context, left - handleSize, top - handleSize, left + handleSize, top + handleSize, handleColor);
+        drawHollowHandle(context, left, top, left + handleDiameter, top + handleDiameter, handleColor);
         // Top-right
-        drawRoundedHandle(context, right - handleSize, top - handleSize, right + handleSize, top + handleSize, handleColor);
+        drawHollowHandle(context, right - handleDiameter, top, right, top + handleDiameter, handleColor);
         // Bottom-left
-        drawRoundedHandle(context, left - handleSize, bottom - handleSize, left + handleSize, bottom + handleSize, handleColor);
+        drawHollowHandle(context, left, bottom - handleDiameter, left + handleDiameter, bottom, handleColor);
         // Bottom-right
-        drawRoundedHandle(context, right - handleSize, bottom - handleSize, right + handleSize, bottom + handleSize, handleColor);
+        drawHollowHandle(context, right - handleDiameter, bottom - handleDiameter, right, bottom, handleColor);
     }
 
-    private void drawRoundedHandle(DrawContext context, int left, int top, int right, int bottom, int color) {
-        context.fill(left + 1, top, right - 1, bottom, color);
-        context.fill(left, top + 1, right, bottom - 1, color);
+    private void drawHollowHandle(DrawContext context, int left, int top, int right, int bottom, int color) {
+        context.fill(left, top, right, top + 1, color);
+        context.fill(left, bottom - 1, right, bottom, color);
+        context.fill(left, top, left + 1, bottom, color);
+        context.fill(right - 1, top, right, bottom, color);
     }
 }
