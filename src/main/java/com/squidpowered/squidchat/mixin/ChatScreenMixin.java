@@ -2,9 +2,9 @@ package com.squidpowered.squidchat.mixin;
 
 import com.squidpowered.squidchat.chat.ChatWindowManager;
 import com.squidpowered.squidchat.chat.ChatWindowManager.ResizeHandle;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ChatScreenMixin {
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void squidchat$onMouseClicked(Click click, boolean bl,
-                                           CallbackInfoReturnable<Boolean> cir) {
+    private void squidchat$onMouseClicked(MouseButtonEvent click, boolean doubled,
+                                          CallbackInfoReturnable<Boolean> cir) {
         if (click.button() != 0) return;
         ChatWindowManager manager = ChatWindowManager.getInstance();
         if (manager == null) return;
@@ -30,14 +30,14 @@ public abstract class ChatScreenMixin {
         ResizeHandle handle = manager.getHandleAt(mouseX, mouseY, left, top, right, bottom);
         if (handle != ResizeHandle.NONE) {
             manager.startResize(handle, left, top, right, bottom);
-            ((ParentElement) (Object) this).setDragging(true);
+            ((ContainerEventHandler) (Object) this).setDragging(true);
             cir.setReturnValue(true);
             return;
         }
 
         if (manager.isInsideDragBar(mouseX, mouseY, left, top, right)) {
             manager.startDrag(mouseX, mouseY, left, top);
-            ((ParentElement) (Object) this).setDragging(true);
+            ((ContainerEventHandler) (Object) this).setDragging(true);
             cir.setReturnValue(true);
         }
     }
@@ -46,7 +46,7 @@ public abstract class ChatScreenMixin {
             method = "mouseClicked",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/font/DrawnTextConsumer$ClickHandler;<init>(Lnet/minecraft/client/font/TextRenderer;II)V"
+                    target = "Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;<init>(Lnet/minecraft/client/gui/Font;II)V"
             ),
             index = 1
     )
@@ -58,7 +58,7 @@ public abstract class ChatScreenMixin {
             method = "mouseClicked",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/font/DrawnTextConsumer$ClickHandler;<init>(Lnet/minecraft/client/font/TextRenderer;II)V"
+                    target = "Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;<init>(Lnet/minecraft/client/gui/Font;II)V"
             ),
             index = 2
     )
@@ -67,10 +67,10 @@ public abstract class ChatScreenMixin {
     }
 
     @ModifyArg(
-            method = "render",
+            method = "extractRenderState",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;IIIZZ)V"
+                    target = "Lnet/minecraft/client/gui/components/ChatComponent;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V"
             ),
             index = 3
     )
@@ -79,10 +79,10 @@ public abstract class ChatScreenMixin {
     }
 
     @ModifyArg(
-            method = "render",
+            method = "extractRenderState",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;IIIZZ)V"
+                    target = "Lnet/minecraft/client/gui/components/ChatComponent;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V"
             ),
             index = 4
     )

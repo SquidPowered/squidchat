@@ -1,23 +1,26 @@
 package com.squidpowered.squidchat.mixin;
 
 import com.squidpowered.squidchat.chat.ChatWindowManager;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.ChatComponent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public abstract class ChatHudMixin {
+    @Shadow
+    public abstract boolean isChatFocused();
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void squidchat$beforeRender(DrawContext context, TextRenderer textRenderer,
-                                         int currentTick, int mouseX, int mouseY,
-                                         boolean focused, boolean chatOpen,
-                                         CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    private void squidchat$beforeRender(GuiGraphicsExtractor context, Font font,
+                                        int currentTick, int mouseX, int mouseY,
+                                        ChatComponent.DisplayMode displayMode, boolean insertionClickMode,
+                                        CallbackInfo ci) {
         ChatWindowManager manager = ChatWindowManager.getInstance();
         if (manager == null) return;
 
@@ -29,24 +32,24 @@ public abstract class ChatHudMixin {
         manager.clampToScreen();
 
         if (manager.isCustomPosition()) {
-            context.getMatrices().pushMatrix();
-            context.getMatrices().translate(manager.getRenderOffsetX(), manager.getRenderOffsetY());
+            context.pose().pushMatrix();
+            context.pose().translate((float) manager.getRenderOffsetX(), (float) manager.getRenderOffsetY());
         }
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void squidchat$afterRender(DrawContext context, TextRenderer textRenderer,
-                                        int currentTick, int mouseX, int mouseY,
-                                        boolean focused, boolean chatOpen,
-                                        CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("RETURN"))
+    private void squidchat$afterRender(GuiGraphicsExtractor context, Font font,
+                                       int currentTick, int mouseX, int mouseY,
+                                       ChatComponent.DisplayMode displayMode, boolean insertionClickMode,
+                                       CallbackInfo ci) {
         ChatWindowManager manager = ChatWindowManager.getInstance();
         if (manager == null) return;
 
         if (manager.isCustomPosition()) {
-            context.getMatrices().popMatrix();
+            context.pose().popMatrix();
         }
 
-        if (manager.isChatVisible() && focused) {
+        if (manager.isChatVisible() && isChatFocused()) {
             drawInteractionOverlay(context, manager);
         }
     }
@@ -67,7 +70,7 @@ public abstract class ChatHudMixin {
         }
     }
 
-    private void drawInteractionOverlay(DrawContext context, ChatWindowManager manager) {
+    private void drawInteractionOverlay(GuiGraphicsExtractor context, ChatWindowManager manager) {
         int handleSize = manager.getHandleDrawSize();
         int handleDiameter = handleSize * 2;
         int dragBarHeight = manager.getDragBarHeight();
@@ -98,7 +101,7 @@ public abstract class ChatHudMixin {
         drawHollowHandle(context, right - handleDiameter, bottom - handleDiameter, right, bottom, handleColor);
     }
 
-    private void drawHollowHandle(DrawContext context, int left, int top, int right, int bottom, int color) {
+    private void drawHollowHandle(GuiGraphicsExtractor context, int left, int top, int right, int bottom, int color) {
         context.fill(left, top, right, top + 1, color);
         context.fill(left, bottom - 1, right, bottom, color);
         context.fill(left, top, left + 1, bottom, color);

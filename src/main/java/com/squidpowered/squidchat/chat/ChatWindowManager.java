@@ -2,7 +2,7 @@ package com.squidpowered.squidchat.chat;
 
 import com.squidpowered.squidchat.config.ConfigManager;
 import com.squidpowered.squidchat.config.SquidChatConfig;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class ChatWindowManager {
     private static final int DEFAULT_CHAT_LEFT = 4;
@@ -158,9 +158,9 @@ public class ChatWindowManager {
     public void updateDrag(double mouseX, double mouseY) {
         if (!dragging) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        Minecraft client = Minecraft.getInstance();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
 
         int newFrameLeft = (int) mouseX - dragOffsetX;
         int newFrameTop = (int) mouseY - dragOffsetY;
@@ -177,9 +177,9 @@ public class ChatWindowManager {
     public void updateResize(double mouseX, double mouseY) {
         if (!resizing || activeHandle == ResizeHandle.NONE) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        Minecraft client = Minecraft.getInstance();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
         int minFrameWidth = MIN_WIDTH + FRAME_LEFT_PADDING + FRAME_RIGHT_PADDING;
         int minFrameHeight = MIN_HEIGHT + FRAME_BOTTOM_PADDING;
 
@@ -235,11 +235,11 @@ public class ChatWindowManager {
     }
 
     public void clampToScreen() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.getWindow() == null) return;
 
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (isCustomPosition()) {
             int maxChatX = Math.max(FRAME_LEFT_PADDING, screenWidth - getScreenChatWidth() - FRAME_RIGHT_PADDING);
@@ -256,13 +256,13 @@ public class ChatWindowManager {
     }
 
     public static int getVanillaChatWidth() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        return (int) (client.options.getChatWidth().getValue() * 280 + 40);
+        Minecraft client = Minecraft.getInstance();
+        return (int) (client.options.chatWidth().get() * 280 + 40);
     }
 
     public static int getVanillaChatHeight() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        return (int) (client.options.getChatHeightFocused().getValue() * 160 + 20);
+        Minecraft client = Minecraft.getInstance();
+        return (int) (client.options.chatHeightFocused().get() * 160 + 20);
     }
 
     public int getHandleDrawSize() {
@@ -298,8 +298,8 @@ public class ChatWindowManager {
     }
 
     public double getChatScale() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        return client.options.getChatScale().getValue();
+        Minecraft client = Minecraft.getInstance();
+        return client.options.chatScale().get();
     }
 
     public int getScreenChatWidth() {
@@ -323,8 +323,8 @@ public class ChatWindowManager {
     }
 
     public int getRenderTop() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int screenHeight = client.getWindow().getScaledHeight();
+        Minecraft client = Minecraft.getInstance();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
         return isCustomPosition() ? chatY : screenHeight - DEFAULT_CHAT_BOTTOM_OFFSET - getScreenChatHeight();
     }
 
@@ -333,8 +333,8 @@ public class ChatWindowManager {
     }
 
     public int getRenderOffsetY() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int screenHeight = client.getWindow().getScaledHeight();
+        Minecraft client = Minecraft.getInstance();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
         int defaultTop = screenHeight - DEFAULT_CHAT_BOTTOM_OFFSET - getScreenChatHeight();
         return getRenderTop() - defaultTop;
     }
@@ -348,9 +348,9 @@ public class ChatWindowManager {
     }
 
     private void refreshChatHud() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.inGameHud != null) {
-            client.inGameHud.getChatHud().reset();
+        Minecraft client = Minecraft.getInstance();
+        if (client.gui != null) {
+            client.gui.getChat().rescaleChat();
         }
     }
 }

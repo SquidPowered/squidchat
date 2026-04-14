@@ -1,7 +1,7 @@
 # Project Guidelines
 
 ## Architecture
-This repository is a Fabric client mod for Minecraft 1.21.11 targeting Java 21.
+This repository is a Fabric client mod for Minecraft 26.1.2 targeting Java 25.
 Core entrypoints are [src/main/java/com/squidpowered/squidchat/SquidChat.java](src/main/java/com/squidpowered/squidchat/SquidChat.java) and [src/main/java/com/squidpowered/squidchat/SquidChatClient.java](src/main/java/com/squidpowered/squidchat/SquidChatClient.java).
 Keep responsibilities separated by package:
 - `chat/` manages chat window state and notification behavior.
@@ -17,7 +17,7 @@ Use the Gradle wrapper from the repo root.
 There is no established automated test suite in this repo right now. Do not claim test coverage unless you actually add and run tests.
 
 ## Conventions
-Target Java 21 and the dependency versions declared in [gradle.properties](gradle.properties) and [build.gradle](build.gradle). Keep changes compatible with the current Minecraft, Yarn, and Fabric versions unless the task is explicitly a version upgrade.
+Target Java 25 and the dependency versions declared in [gradle.properties](gradle.properties) and [build.gradle](build.gradle). Keep changes compatible with the current Minecraft, official Mojang-named 26.1 toolchain, and current Fabric ecosystem unless the task is explicitly a version upgrade.
 
 Treat mixins as version-sensitive integration points. When editing files under [src/main/java/com/squidpowered/squidchat/mixin](src/main/java/com/squidpowered/squidchat/mixin), keep injections minimal, preserve existing naming such as the `squidchat$` method prefix, and verify corresponding targets in [src/main/resources/squidchat.mixins.json](src/main/resources/squidchat.mixins.json).
 

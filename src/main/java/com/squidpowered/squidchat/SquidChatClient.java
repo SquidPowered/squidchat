@@ -3,35 +3,35 @@ package com.squidpowered.squidchat;
 import com.squidpowered.squidchat.chat.ChatNotificationHandler;
 import com.squidpowered.squidchat.chat.ChatWindowManager;
 import com.squidpowered.squidchat.config.ConfigManager;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class SquidChatClient implements ClientModInitializer {
 
-    public static KeyBinding toggleChatKeyBinding;
+    public static KeyMapping toggleChatKeyBinding;
 
     @Override
     public void onInitializeClient() {
         ConfigManager.load();
         ChatWindowManager.init();
 
-        toggleChatKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        toggleChatKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.squidchat.toggle_chat",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                KeyBinding.Category.create(Identifier.of(SquidChat.MOD_ID, "general"))
+                KeyMapping.Category.register(Identifier.fromNamespaceAndPath(SquidChat.MOD_ID, "general"))
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (toggleChatKeyBinding.wasPressed()) {
+            while (toggleChatKeyBinding.consumeClick()) {
                 ChatWindowManager manager = ChatWindowManager.getInstance();
                 manager.setChatVisible(!manager.isChatVisible());
                 ConfigManager.getConfig().chatVisible = manager.isChatVisible();

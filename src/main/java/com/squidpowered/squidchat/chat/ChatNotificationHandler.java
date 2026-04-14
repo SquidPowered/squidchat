@@ -4,8 +4,8 @@ import com.squidpowered.squidchat.config.ConfigManager;
 import com.squidpowered.squidchat.config.SquidChatConfig;
 import com.squidpowered.squidchat.sound.SquidChatSounds;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 
 public class ChatNotificationHandler {
 
@@ -25,11 +25,11 @@ public class ChatNotificationHandler {
         SquidChatConfig config = ConfigManager.getConfig();
         if (!config.toneEnabled) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.getSoundManager() == null) return;
 
         client.getSoundManager().play(
-                PositionedSoundInstance.ui(
+                SimpleSoundInstance.forUI(
                         SquidChatSounds.CHAT_NOTIFICATION,
                         1.0f,
                         config.toneVolume
