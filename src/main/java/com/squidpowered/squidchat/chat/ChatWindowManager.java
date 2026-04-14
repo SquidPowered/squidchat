@@ -180,8 +180,8 @@ public class ChatWindowManager {
         Minecraft client = Minecraft.getInstance();
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
-        int minFrameWidth = MIN_WIDTH + FRAME_LEFT_PADDING + FRAME_RIGHT_PADDING;
-        int minFrameHeight = MIN_HEIGHT + FRAME_BOTTOM_PADDING;
+        int minFrameWidth = MIN_WIDTH + FRAME_LEFT_PADDING + getScreenRightPadding();
+        int minFrameHeight = getMinimumScreenChatHeight() + FRAME_BOTTOM_PADDING;
 
         int newLeft = origLeft;
         int newTop = origTop;
@@ -212,8 +212,8 @@ public class ChatWindowManager {
 
         chatX = newLeft + FRAME_LEFT_PADDING;
         chatY = newTop;
-        chatWidth = newRight - newLeft - FRAME_LEFT_PADDING - FRAME_RIGHT_PADDING;
-        chatHeight = newBottom - newTop - FRAME_BOTTOM_PADDING;
+        chatWidth = newRight - newLeft - FRAME_LEFT_PADDING - getScreenRightPadding();
+        chatHeight = screenToRenderedHeight(newBottom - newTop - FRAME_BOTTOM_PADDING);
         refreshChatHud();
     }
 
@@ -241,17 +241,20 @@ public class ChatWindowManager {
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
+        if (isCustomSize()) {
+            int maxChatWidth = Math.max(MIN_WIDTH, screenWidth - FRAME_LEFT_PADDING - getScreenRightPadding());
+            int maxChatHeight = Math.max(MIN_HEIGHT, getMaximumRenderedHeight(screenHeight));
+
+            chatWidth = clamp(chatWidth, MIN_WIDTH, maxChatWidth);
+            chatHeight = clamp(chatHeight, MIN_HEIGHT, maxChatHeight);
+        }
+
         if (isCustomPosition()) {
             int maxChatX = Math.max(FRAME_LEFT_PADDING, screenWidth - getScreenChatWidth() - FRAME_RIGHT_PADDING);
             int maxChatY = Math.max(0, screenHeight - getScreenChatHeight() - FRAME_BOTTOM_PADDING);
 
             chatX = clamp(chatX, FRAME_LEFT_PADDING, maxChatX);
             chatY = clamp(chatY, 0, maxChatY);
-        }
-
-        if (isCustomSize()) {
-            chatWidth = Math.min(chatWidth, Math.max(MIN_WIDTH, screenWidth - FRAME_LEFT_PADDING - FRAME_RIGHT_PADDING));
-            chatHeight = Math.min(chatHeight, Math.max(MIN_HEIGHT, screenHeight - FRAME_BOTTOM_PADDING));
         }
     }
 
@@ -282,7 +285,7 @@ public class ChatWindowManager {
     }
 
     public int getFrameRight() {
-        return getRenderLeft() + getScreenChatWidth() + FRAME_RIGHT_PADDING;
+        return getRenderLeft() + getScreenChatWidth() + getScreenRightPadding();
     }
 
     public int getFrameBottom() {
@@ -303,7 +306,7 @@ public class ChatWindowManager {
     }
 
     public int getScreenChatWidth() {
-        return Math.max(1, (int) Math.round(getRenderedChatWidth() * getChatScale()));
+        return getRenderedChatWidth();
     }
 
     public int getScreenChatHeight() {
@@ -311,11 +314,29 @@ public class ChatWindowManager {
     }
 
     public int getScreenFrameWidth() {
-        return getScreenChatWidth() + FRAME_LEFT_PADDING + FRAME_RIGHT_PADDING;
+        return getScreenChatWidth() + FRAME_LEFT_PADDING + getScreenRightPadding();
     }
 
     public int getScreenFrameHeight() {
         return getScreenChatHeight() + FRAME_BOTTOM_PADDING;
+    }
+
+    private int getMinimumScreenChatHeight() {
+        return Math.max(1, (int) Math.round(MIN_HEIGHT * getChatScale()));
+    }
+
+    private int getScreenRightPadding() {
+        // Vanilla chat backgrounds keep an extra 8 local units on the right,
+        // so the visible margin scales with chat scale.
+        return Math.max(1, (int) Math.round(FRAME_RIGHT_PADDING * getChatScale()));
+    }
+
+    private int screenToRenderedHeight(int screenHeight) {
+        return Math.max(MIN_HEIGHT, (int) Math.round(screenHeight / getChatScale()));
+    }
+
+    private int getMaximumRenderedHeight(int screenHeight) {
+        return (int) Math.floor((screenHeight - FRAME_BOTTOM_PADDING) / getChatScale());
     }
 
     public int getRenderLeft() {
