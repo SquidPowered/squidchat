@@ -3,11 +3,15 @@
   "key.category.squidchat.general": "SquidChat",
   "key.squidchat.toggle_chat": "Toggle Chat Window",
   "title.squidchat.config": "SquidChat Configuration",
+  "title.squidchat.options": "SquidChat Settings",
   "category.squidchat.sound": "Sound",
   "category.squidchat.chat_window": "Chat Window",
+  "category.squidchat.vanilla_chat": "Minecraft Chat",
   "option.squidchat.tone_enabled": "Chat Notification Tone",
   "option.squidchat.tone_volume": "Notification Volume",
   "option.squidchat.reset_position": "Reset Chat Position",
   "action.squidchat.reset": "Reset",
+  "tooltip.squidchat.tone_enabled": "Play a notification sound when a new chat message arrives",
+  "tooltip.squidchat.tone_volume": "Adjust the notification sound volume",
   "tooltip.squidchat.reset_position": "Reset the chat window to its default position and size"
 }
