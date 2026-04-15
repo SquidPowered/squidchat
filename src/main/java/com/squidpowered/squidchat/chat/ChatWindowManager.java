@@ -7,6 +7,9 @@ import net.minecraft.client.Minecraft;
 public class ChatWindowManager {
     private static final int DEFAULT_CHAT_LEFT = 4;
     private static final int DEFAULT_CHAT_BOTTOM_OFFSET = 40;
+    private static final double MIN_CHAT_SCALE = 0.05;
+    private static final double MAX_CHAT_SCALE = 1.0;
+    private static final double CHAT_SCALE_STEP = 0.05;
 
     private static ChatWindowManager instance;
 
@@ -305,6 +308,37 @@ public class ChatWindowManager {
         return client.options.chatScale().get();
     }
 
+    public boolean adjustChatScale(double scrollDelta) {
+        if (scrollDelta == 0.0) {
+            return false;
+        }
+
+        Minecraft client = Minecraft.getInstance();
+        int frameLeft = getFrameLeft();
+        int frameTop = getFrameTop();
+        int frameRight = getFrameRight();
+        int frameBottom = getFrameBottom();
+        double currentScale = client.options.chatScale().get();
+        double newScale = clamp(currentScale + Math.signum(scrollDelta) * CHAT_SCALE_STEP, MIN_CHAT_SCALE, MAX_CHAT_SCALE);
+        if (Double.compare(currentScale, newScale) == 0) {
+            return false;
+        }
+
+        client.options.chatScale().set(newScale);
+        preserveFrameBounds(frameLeft, frameTop, frameRight, frameBottom);
+        refreshChatHud();
+        saveToConfig();
+        client.options.save();
+        return true;
+    }
+
+    public void resetChatScale() {
+        Minecraft client = Minecraft.getInstance();
+        client.options.chatScale().set(1.0);
+        refreshChatHud();
+        client.options.save();
+    }
+
     public int getScreenChatWidth() {
         return getRenderedChatWidth();
     }
@@ -333,6 +367,13 @@ public class ChatWindowManager {
 
     private int screenToRenderedHeight(int screenHeight) {
         return Math.max(MIN_HEIGHT, (int) Math.round(screenHeight / getChatScale()));
+    }
+
+    private void preserveFrameBounds(int frameLeft, int frameTop, int frameRight, int frameBottom) {
+        chatX = frameLeft + FRAME_LEFT_PADDING;
+        chatY = frameTop;
+        chatWidth = Math.max(MIN_WIDTH, frameRight - frameLeft - FRAME_LEFT_PADDING - getScreenRightPadding());
+        chatHeight = screenToRenderedHeight(frameBottom - frameTop - FRAME_BOTTOM_PADDING);
     }
 
     private int getMaximumRenderedHeight(int screenHeight) {
@@ -365,6 +406,10 @@ public class ChatWindowManager {
     }
 
     private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    private static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(value, max));
     }
 

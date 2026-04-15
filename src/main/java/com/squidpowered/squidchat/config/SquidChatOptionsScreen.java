@@ -91,6 +91,7 @@ public class SquidChatOptionsScreen extends OptionsSubScreen {
         ChatWindowManager manager = ChatWindowManager.getInstance();
         if (manager != null) {
             manager.loadFromConfig();
+            manager.resetChatScale();
         }
 
         ConfigManager.save();

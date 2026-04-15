@@ -2,6 +2,7 @@ package com.squidpowered.squidchat.mixin;
 
 import com.squidpowered.squidchat.chat.ChatWindowManager;
 import com.squidpowered.squidchat.chat.ChatWindowManager.ResizeHandle;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -38,6 +39,24 @@ public abstract class ChatScreenMixin {
         if (manager.isInsideDragBar(mouseX, mouseY, left, top, right)) {
             manager.startDrag(mouseX, mouseY, left, top);
             ((ContainerEventHandler) (Object) this).setDragging(true);
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
+    private void squidchat$onMouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY,
+                                           CallbackInfoReturnable<Boolean> cir) {
+        ChatWindowManager manager = ChatWindowManager.getInstance();
+        if (manager == null || !Minecraft.getInstance().hasControlDown()) {
+            return;
+        }
+
+        int[] bounds = squidchat$getChatFrameBounds(manager);
+        if (!manager.isInsideWindow(mouseX, mouseY, bounds[0], bounds[1], bounds[2], bounds[3])) {
+            return;
+        }
+
+        if (manager.adjustChatScale(scrollY)) {
             cir.setReturnValue(true);
         }
     }
