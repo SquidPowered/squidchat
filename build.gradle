@@ -38,11 +38,12 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
-
+    def currentVersion = project.version
+    inputs.property "version", currentVersion
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand version: currentVersion
     }
+
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -58,7 +59,8 @@ java {
 }
 
 jar {
+    def archivesName = project.base.archivesName.get()
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}" }
+        rename { "${it}_${archivesName}" }
     }
 }
