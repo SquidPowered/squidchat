@@ -416,7 +416,7 @@ public class ChatWindowManager {
     private void refreshChatHud() {
         Minecraft client = Minecraft.getInstance();
         if (client.gui != null) {
-            client.gui.getChat().rescaleChat();
+            client.gui.hud.getChat().rescaleChat();
         }
     }
 }

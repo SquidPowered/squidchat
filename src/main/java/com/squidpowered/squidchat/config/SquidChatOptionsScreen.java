@@ -97,7 +97,7 @@ public class SquidChatOptionsScreen extends OptionsSubScreen {
         ConfigManager.save();
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.gui != null) {
-            minecraft.gui.getChat().rescaleChat();
+            minecraft.gui.hud.getChat().rescaleChat();
         }
     }
 }

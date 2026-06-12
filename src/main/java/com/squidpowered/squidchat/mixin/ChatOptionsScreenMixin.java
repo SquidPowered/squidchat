@@ -19,8 +19,8 @@ public abstract class ChatOptionsScreenMixin extends OptionsSubScreen {
     @Inject(method = "addOptions", at = @At("HEAD"), cancellable = true)
     private void squidchat$replaceVanillaChatOptions(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!(minecraft.screen instanceof SquidChatOptionsScreen)) {
-            minecraft.setScreen(new SquidChatOptionsScreen(lastScreen, options));
+        if (!(minecraft.gui.screen() instanceof SquidChatOptionsScreen)) {
+            minecraft.gui.setScreen(new SquidChatOptionsScreen(lastScreen, options));
         }
         ci.cancel();
     }
