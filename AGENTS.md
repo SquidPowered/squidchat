@@ -3,7 +3,7 @@
 ## Quick Context
 - This is a single-module Fabric client mod for Minecraft `26.1.2` on Java `25`.
 - Real entrypoints are `src/main/java/com/squidpowered/squidchat/SquidChat.java` and `src/main/java/com/squidpowered/squidchat/SquidChatClient.java` as wired in `src/main/resources/fabric.mod.json`.
-- Package boundaries are meaningful here: `chat/` owns chat window state + notification behavior, `config/` owns persistence + Mod Menu integration, `mixin/` owns UI injections, `sound/` owns sound registration.
+- Package boundaries are meaningful here: `chat/` owns chat window state + notification behavior, `config/` owns persistence + the in-game options screen, `mixin/` owns UI injections, `sound/` owns sound registration.
 
 ## Commands
 - Use the Gradle wrapper from repo root: `./gradlew build`.

@@ -15,9 +15,6 @@
     ],
     "client": [
       "com.squidpowered.squidchat.SquidChatClient"
-    ],
-    "modmenu": [
-      "com.squidpowered.squidchat.config.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -28,9 +25,5 @@
     "minecraft": "~26.1.2",
     "java": ">=25",
     "fabric-api": "*"
-  },
-  "suggests": {
-    "modmenu": "*",
-    "cloth-config": "*"
   }
 }
